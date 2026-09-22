@@ -1,93 +1,75 @@
 import { memo } from 'react';
 import { Link } from '@salla.sa/twilight-theme-engine/common';
-import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 
-interface BannerItem {
+export interface BannerItem {
+  id?: string | number;
+  link?: string;
   image?: string;
-  url?: string;
   title?: string;
-  description?: string;
+  subtitle?: string;
+  btnname?: string;
+  [key: string]: unknown;
 }
 
 export interface EnhancedSquareBannersProps {
   data: {
-    banners: BannerItem[];
-    position?: number;
+    banners?: BannerItem[];
+    square_banners?: BannerItem[];
     [key: string]: unknown;
   };
 }
 
-function MosaicBanner({
-  banner,
-  index,
-  ctaLabel,
-}: {
-  banner: BannerItem;
-  index: number;
-  ctaLabel: string;
-}) {
-  return (
-    <Link
-      to={banner.url || '#'}
-      aria-label={banner.title ? banner.title : `square-banner-${index}`}
-      className="enhanced-square-banner bg-no-repeat bg-cover bg-center"
-      style={{ backgroundImage: `url(${banner.image})` }}
-    >
-      <span className="enhanced-square-banner__content">
-        {banner.title && <h3 className="enhanced-square-banner__title">{banner.title}</h3>}
-        {banner.description && (
-          <p className="enhanced-square-banner__description">{banner.description}</p>
-        )}
-        {banner.url && <span className="enhanced-square-banner__cta">{ctaLabel}</span>}
-      </span>
-    </Link>
-  );
-}
-
-export const EnhancedSquareBanners = memo(function EnhancedSquareBanners({
-  data,
-}: EnhancedSquareBannersProps) {
-  const { t } = useTranslation();
-  const { banners } = data;
+export const EnhancedSquareBanners = memo(function EnhancedSquareBanners({ data }: EnhancedSquareBannersProps) {
+  const banners = data?.banners || data?.square_banners || [];
 
   if (!banners.length) return null;
 
-  // 5 banners: hero mosaic — two stacked banners on each side, one tall
-  // banner spanning both rows in the center. Fewer banners keep the plain grid.
-  if (banners.length === 5) {
-    const ctaLabel = t('blocks.home.discover_now', 'Discover now');
-    return (
-      <div className="enhanced-square-banners-mosaic">
-        {banners.map((banner, index) => (
-          // A static settings list whose items have no id: see
-          // .react-doctor/false-positives.md.
-          // react-doctor-disable-next-line react-doctor/no-array-index-as-key
-          <MosaicBanner key={index} banner={banner} index={index} ctaLabel={ctaLabel} />
-        ))}
-      </div>
-    );
-  }
-
-  const gridCols =
-    banners.length <= 3 ? `md:grid-cols-${banners.length}` : 'md:grid-cols-3 two-row';
-  const hasTwoRows = banners.length > 3;
-
   return (
-    <div className={`grid ${gridCols} grid-flow-row gap-3 sm:gap-8`}>
-      {banners.map((banner, index) => (
-        <Link
-          key={index}
-          to={banner.url || '#'}
-          aria-label={banner.title ? banner.title : `square-banner-${index}`}
-          className={`banner-entry bg-no-repeat bg-cover bg-center ${banner.title ? 'has-overlay' : ''} ${hasTwoRows ? 'h-banner' : 'h-lg-banner'}`}
-          style={{ backgroundImage: `url(${banner.image})` }}
-        >
-          <article className="banner-entry__text text-with-border">
-            <h3 className="banner__title font-bold mb-1 leading-6">{banner.title}</h3>
-            <p className="banner__description">{banner.description}</p>
-          </article>
-        </Link>
-      ))}
-    </div>
+    <section className="py-12 bg-white">
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {banners.map((banner, index) => (
+            <div
+              key={banner.id || index}
+              className="relative overflow-hidden rounded-card bg-primary group shadow-sm hover:shadow-md transition-all duration-300"
+              style={{ aspectRatio: '16/9' }}
+            >
+              {banner.image && (
+                <img
+                  src={banner.image}
+                  alt={banner.title || 'Banner'}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              )}
+
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/30 to-transparent" />
+
+              <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8 text-right">
+                {banner.subtitle && (
+                  <span className="text-accent font-semibold text-xs md:text-sm mb-1 uppercase tracking-wider">
+                    {banner.subtitle}
+                  </span>
+                )}
+                {banner.title && (
+                  <h3 className="text-white font-bold text-xl md:text-2xl mb-4 leading-snug">
+                    {banner.title}
+                  </h3>
+                )}
+                {banner.link && (
+                  <div>
+                    <Link
+                      href={banner.link}
+                      className="inline-flex items-center justify-center bg-accent hover:bg-accent-hover text-white font-medium px-6 py-2.5 rounded-xl transition-all text-sm shadow-sm"
+                    >
+                      {banner.btnname || 'تسوق العرض'}
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 });
