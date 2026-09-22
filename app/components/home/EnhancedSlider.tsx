@@ -49,45 +49,53 @@ export const EnhancedSlider = memo(function EnhancedSlider({ data }: EnhancedSli
       showControls={hasMultipleSlides}
       pagination={hasMultipleSlides}
       type="fullwidth"
-      className={inContainer ? 'in-container' : undefined}
+      className={inContainer ? 'in-container container my-6' : undefined}
     >
       <div slot="items">
         {slides.map((slide, index) => (
           <div
             key={index}
-            className="swiper-slide w-full bg-dark relative"
-            style={{ aspectRatio: '12/5' }}
+            className="swiper-slide w-full bg-primary relative overflow-hidden rounded-card shadow-sm"
+            style={{ aspectRatio: '16/5' }}
           >
-            <div
-              style={{ backgroundImage: `url(${slide.image})` }}
-              className={`${slide.without_overlay ? '' : 'overlay-bg'} bg-cover bg-center absolute inset-0`}
-            />
+            {slide.image && (
+              <img
+                src={slide.image}
+                alt={slide.title || 'Slide'}
+                className="w-full h-full object-cover"
+              />
+            )}
+            
+            {!slide.without_overlay && (
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/40 to-transparent" />
+            )}
 
-            <div className="flex-center container pb-16 sm:pb-0 home-slider__content relative h-full">
-              <div className="w-4/6 text-center md:w-7/12 lg:w-5/12 text-white">
-                {slide.title && (
-                  <h2
-                    data-swiper-parallax="-500"
-                    className="lg:text-title-size font-bold leading-tight mb-4"
-                  >
-                    {slide.title}
-                  </h2>
-                )}
-                {(slide.subtitle || slide.description) && (
-                  <p data-swiper-parallax="-300" className="line-clamp-2 description">
-                    {slide.subtitle || slide.description}
-                  </p>
-                )}
-                {slide.show_button && slide.btnname && (
+            <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-16 text-right max-w-xl">
+              {slide.subtitle && (
+                <span className="text-accent font-semibold text-sm md:text-base mb-2">
+                  {slide.subtitle}
+                </span>
+              )}
+              {slide.title && (
+                <h2 className="text-white font-bold text-2xl md:text-4xl mb-4 leading-tight">
+                  {slide.title}
+                </h2>
+              )}
+              {slide.description && (
+                <p className="text-gray-200 text-sm md:text-base mb-6 line-clamp-2">
+                  {slide.description}
+                </p>
+              )}
+              {slide.show_button !== false && slide.btnname && (
+                <div>
                   <Link
-                    to={slide.link || '#'}
-                    data-swiper-parallax="-100"
-                    className="home-slider__cta"
+                    href={slide.link || '#'}
+                    className="inline-flex items-center justify-center bg-accent hover:bg-accent-hover text-white font-medium px-8 py-3 rounded-xl transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                   >
                     {slide.btnname}
                   </Link>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         ))}
