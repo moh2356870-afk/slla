@@ -1,71 +1,71 @@
 import { memo } from 'react';
-import type { Brand } from '@salla.sa/twilight-theme-engine/types';
 import { Link } from '@salla.sa/twilight-theme-engine/common';
-import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 
-export interface BrandsData {
-  brands: Brand[];
-  title?: string;
-  show_all?: boolean;
-  position?: number;
+export interface BrandItem {
+  id: string | number;
+  name?: string;
+  url?: string;
+  image?: {
+    url: string;
+    alt?: string;
+  };
   [key: string]: unknown;
 }
 
 export interface BrandsProps {
-  data: BrandsData;
+  data: {
+    title?: string;
+    subtitle?: string;
+    brands?: BrandItem[];
+    [key: string]: unknown;
+  };
 }
 
 export const Brands = memo(function Brands({ data }: BrandsProps) {
-  const { brands, title, show_all: showAll } = data;
-  const { t } = useTranslation();
+  const brands = data?.brands || [];
+  const title = data?.title || 'شركاؤنا وشركات النجاح';
+  const subtitle = data?.subtitle;
 
   if (!brands.length) return null;
 
-  const gridCols = brands.length > 5 ? 'md:grid-cols-4' : 'md:grid-cols-5';
-  const hasLargeItems = brands.length > 5;
-
   return (
-    <>
-      <div className="container">
-        {(title || showAll) && (
-          <div className="s-block__title">
-            {title && (
-              <div className="right-side">
-                <h2>{title}</h2>
-              </div>
-            )}
-            {showAll && (
-              <Link to="/brands" className="s-block__display-all">
-                {t('blocks.home.display_all', 'View All')}
-                <i className="sicon-arrow-left"></i>
-              </Link>
-            )}
-          </div>
-        )}
+    <section className="py-12 bg-surface border-y border-gray-100">
+      <div className="container mx-auto px-4">
+        {/* عنوان القسم */}
+        <div className="text-center mb-10">
+          {subtitle && (
+            <span className="text-accent font-semibold text-sm mb-2 block tracking-wider uppercase">
+              {subtitle}
+            </span>
+          )}
+          <h2 className="text-2xl md:text-3xl font-bold text-primary">
+            {title}
+          </h2>
+        </div>
 
-        <div className={`grid grid-cols-2 ${gridCols} grid-flow-row gap-4 lg:gap-8`}>
-          {brands.map((brand, index) => {
-            const isFirstOrThird = index === 0 || index % 3 === 0;
-            return (
-              <Link
-                key={brand.id}
-                to={brand.url}
-                className={`brand-item ${hasLargeItems && isFirstOrThird ? 'sm:row-span-2 sm:h-auto' : ''}`}
-              >
+        {/* شبكة العلامات التجارية */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6 items-center">
+          {brands.map((brand) => (
+            <Link
+              key={brand.id}
+              href={brand.url || '#'}
+              className="bg-white p-6 rounded-card border border-gray-100 shadow-sm hover:shadow-md hover:border-accent/40 transition-all duration-300 flex items-center justify-center group h-28"
+            >
+              {brand.image?.url ? (
                 <img
-                  className="max-h-full"
-                  width="400"
-                  height="300"
-                  src={brand.logo}
-                  alt={brand.name}
-                  loading={index === 0 ? 'eager' : 'lazy'}
-                  decoding={index === 0 ? 'sync' : 'async'}
+                  src={brand.image.url}
+                  alt={brand.image.alt || brand.name || 'Brand'}
+                  className="max-h-12 max-w-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
                 />
-              </Link>
-            );
-          })}
+              ) : (
+                <span className="font-semibold text-darkText group-hover:text-primary transition-colors text-sm">
+                  {brand.name}
+                </span>
+              )}
+            </Link>
+          ))}
         </div>
       </div>
-    </>
+    </section>
   );
 });
